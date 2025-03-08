@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Planet } from '@/types/planets';
 import { Vector3 } from 'three';
@@ -20,16 +20,13 @@ const PlanetNavigation = ({
 }: PlanetNavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Track which planets have positions for visual indicator
-  const [trackedPlanets, setTrackedPlanets] = useState<Record<string, boolean>>({});
-  
-  // Update tracked planets when positions change
-  useEffect(() => {
+  // Calculate tracked planets using useMemo instead of state
+  const trackedPlanets = useMemo(() => {
     const tracked: Record<string, boolean> = {};
     Object.keys(planetPositions).forEach(id => {
       tracked[id] = true;
     });
-    setTrackedPlanets(tracked);
+    return tracked;
   }, [planetPositions]);
 
   const toggleMenu = useCallback(() => {
