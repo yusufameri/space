@@ -31,10 +31,6 @@
   - Helper components and hooks
   - Performance optimizations
   - Ready-made controls and effects
-- **@react-three/postprocessing**
-  - Advanced visual effects
-  - Bloom and ambient effects
-  - Space atmosphere simulation
 
 ### Styling
 - **Tailwind CSS**
