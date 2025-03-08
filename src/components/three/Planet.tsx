@@ -4,8 +4,8 @@ import { Sphere, Text } from '@react-three/drei';
 import { Planet as PlanetType } from '@/types/planets';
 import { VISUALIZATION_SCALE } from '@/constants/solarSystemData';
 import useOrbitalMotion from '@/hooks/useOrbitalMotion';
-import { useState, useEffect } from 'react';
-import { Color, Vector3 } from 'three';
+import { useState, useRef } from 'react';
+import { Color, Vector3, Group } from 'three';
 import { useFrame } from '@react-three/fiber';
 
 interface PlanetProps {
@@ -38,22 +38,23 @@ const Planet = ({
   );
   
   // Use our custom hook for orbital motion
-  const { objectRef, initialPosition, currentPosition } = useOrbitalMotion({
+  const { currentPosition } = useOrbitalMotion({
     orbitalPeriod: planet.orbitalPeriod,
     rotationPeriod: planet.rotationPeriod,
     distanceFromSun: planet.distanceFromSun,
     paused,
     timeScale,
   });
+  const meshRef = useRef<Group>(null);
+  const worldPosition = useRef(new Vector3());
   
   // Update parent component with current position on every frame
   useFrame(() => {
-    if (objectRef.current && (isSelected || hovered)) {
-      const worldPosition = new Vector3();
-      objectRef.current.getWorldPosition(worldPosition);
+    if (meshRef.current && (isSelected || hovered)) {
+      meshRef.current.getWorldPosition(worldPosition.current);
       
       if (onPositionUpdate) {
-        onPositionUpdate(planet.id, worldPosition);
+        onPositionUpdate(planet.id, worldPosition.current);
       }
     }
   });
@@ -63,15 +64,14 @@ const Planet = ({
   
   // Handle click with current position
   const handleClick = () => {
-    if (objectRef.current) {
-      const worldPosition = new Vector3();
-      objectRef.current.getWorldPosition(worldPosition);
-      onSelect(planet.id, worldPosition);
+    if (meshRef.current) {
+      meshRef.current.getWorldPosition(worldPosition.current);
+      onSelect(planet.id, worldPosition.current);
     }
   };
   
   return (
-    <group ref={objectRef} position={initialPosition}>
+    <group ref={meshRef} position={currentPosition}>
       {/* Planet sphere */}
       <Sphere 
         args={[size, 32, 32]} 
